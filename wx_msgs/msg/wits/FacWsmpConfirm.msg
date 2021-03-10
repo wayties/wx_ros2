@@ -17,11 +17,11 @@
 # This message contains information about WSMP confirm when WSMP is requested.
 # There are several enum and bitmask types, a parsing may be necessary as needed.
 
+WxHeader wx_header # wx common header
+
 # result_code, type: enum
 # ACCEPTED                      = 0
 # REJECTED_MAX_LENGTH_EXCCEEDED = 1
 # REJECTED_UNSPECIFIED          = 2
 
-WxHeader wx_header # wx common header
-
-uint32 result_code
+uint32   result_code 

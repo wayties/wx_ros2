@@ -27,8 +27,12 @@ WxHeader wx_header # wx commonn header
 # CERTIFICATE = 0
 # DIGEST      = 1
 
-uint32       sec_type                    #
-uint32       signer_identifier_type      #
-Macaddress48 peer_mac_address            #
-uint64       provider_service_identifier # PSID, refer IEEE 1609.12
+# provider_service_identifier
+# Default set is 0x7F for Testing.
+# If need to Vehicle to Vehicle Safety and Awareness, change to 0x20
+
+uint32       sec_type                    # unsecured only
+uint32       signer_identifier_type      # signed only
+Macaddress48 peer_mac_address            # generally use broadcast address ff:ff:ff:ff:ff:ff
+uint64       provider_service_identifier # default: 0x7F
 uint8[]      data                        # payload

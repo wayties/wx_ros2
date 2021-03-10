@@ -14,4 +14,4 @@
 
 # Macaddress48.msg
 
-uint8[6] address
+uint8[6] address # EUI-48

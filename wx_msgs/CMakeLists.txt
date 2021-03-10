@@ -16,14 +16,14 @@ find_package(rosidl_default_generators REQUIRED)
 
 set(msg_files
   "msg/WxHeader.msg"
+  
   "msg/ieee/ChannelIdentifier.msg"
   "msg/ieee/Macaddress48.msg"
+
   "msg/wits/FacPotiIndication.msg"
-  "msg/wits/FacPotiStatusIndication.msg"
   "msg/wits/FacWsmpRequest.msg"
   "msg/wits/FacWsmpConfirm.msg"
   "msg/wits/FacWsmpIndication.msg"
-  "msg/wits/FacWsmpStatusIndication.msg"
 )
 rosidl_generate_interfaces(${PROJECT_NAME}
   ${msg_files}
