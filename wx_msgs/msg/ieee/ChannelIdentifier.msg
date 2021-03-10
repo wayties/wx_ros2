@@ -14,6 +14,6 @@
 
 # ChannelIdentifier.msg
 
-uint8[3] country_string  #
-uint8    operating_class #
-uint8    channel_number  #
+uint8[3] country_string  # a specific geographic region (country)
+uint8    operating_class # a context of a group of channels identified
+uint8    channel_number  # 0-200, identify a specific radio channel
