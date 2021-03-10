@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <string>
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -19,25 +20,85 @@
 #include "rclcpp/rclcpp.hpp"
 
 #include "wx_msgs/msg/fac_poti_indication.hpp"
-#include "wx_msgs/msg/fac_poti_status_indication.hpp"
 
 #include "wx_msgs/msg/fac_wsmp_request.hpp"
 #include "wx_msgs/msg/fac_wsmp_confirm.hpp"
 #include "wx_msgs/msg/fac_wsmp_indication.hpp"
-#include "wx_msgs/msg/fac_wsmp_status_indication.hpp"
 
 using namespace std::chrono_literals;
 using namespace std::placeholders;
 
 using namespace wx_msgs::msg;
 
-const std::string kTOPIC_FAC_POTI_IND        = "wx/fac/poti/ind";
-const std::string kTOPIC_FAC_POTI_STATUS_IND = "wx/fac/poti/status/ind";
+// The constant topic name is WX protocol. Do not change.
+const std::string kTOPIC_FAC_POTI_IND = "wx/fac/poti/ind";
+const std::string kTOPIC_FAC_WSMP_REQ = "wx/fac/wsmp/req";
+const std::string kTOPIC_FAC_WSMP_CFM = "wx/fac/wsmp/cfm";
+const std::string kTOPIC_FAC_WSMP_IND = "wx/fac/wsmp/ind";
 
-const std::string kTOPIC_FAC_WSMP_REQ        = "wx/fac/wsmp/req";
-const std::string kTOPIC_FAC_WSMP_CFM        = "wx/fac/wsmp/cfm";
-const std::string kTOPIC_FAC_WSMP_IND        = "wx/fac/wsmp/ind";
-const std::string kTOPIC_FAC_WSMP_STATUS_IND = "wx/fac/wsmp/status/ind";
+enum kWsmpValidity {
+  SEC_TYPE                    = (0x01 << 0),
+  SIGNER_IDENT_TYPE           = (0x01 << 1),
+  SOURCE_MAC_ADDRESS          = (0x01 << 2),
+  RESET_MAC_ADDRESS           = (0x01 << 3),
+  CHANNEL_IDENTIFIER          = (0x01 << 4),
+  TIME_SLOT                   = (0x01 << 5),
+  DATA_RATE                   = (0x01 << 6),
+  TRANSMIT_POWER_LEVEL        = (0x01 << 7),
+  USER_PRIORITY               = (0x01 << 8),
+  EXPIRY_TIME                 = (0x01 << 9),
+  // NOT USED 
+  // NOT USED 
+  PEER_MAC_ADDRESS            = (0x01 << 12),
+  PROVIDER_SERVICE_IDENTIFIER = (0x01 << 13),
+};
+
+enum eFixStatus {
+  NO,
+  TIME,
+  FIX2D,  
+  FIX3D,  
+};
+
+enum kPotiIndValiditiy {
+  FIX_STATUS                         = (0x01 << 0),
+  FIX_TYPE                           = (0x01 << 1),
+  NUM_USED_SV                        = (0x01 << 2),
+  NUM_VISIBLE_SV                     = (0x01 << 3),
+  PDOP                               = (0x01 << 4), 
+  TIMESTAMP                          = (0x01 << 5),
+  LATITUDE                           = (0x01 << 6),
+  LONGITUDE                          = (0x01 << 7),
+  ELEVATION_MSL                      = (0x01 << 8),
+  ELEVATION_ELLIPSOID                = (0x01 << 9),
+  SPEED_GROUND                       = (0x01 << 10),
+  SPEED_VEHICLE                      = (0x01 << 11),
+  HEADING_MOTION                     = (0x01 << 12),
+  HEADING_VEHICLE                    = (0x01 << 13),
+  LONGITUDINAL_ACCELERATION          = (0x01 << 14),
+  LATERAL_ACCELERATION               = (0x01 << 15),
+  VERTICAL_ACCELERATION              = (0x01 << 16),
+  YAW_RATE                           = (0x01 << 17),
+  SEMI_MAJOR_AXIS_ACCURACY           = (0x01 << 18),
+  SEMI_MINOR_AXIS_ACCURACY           = (0x01 << 19),
+  SEMI_MAJOR_ORIENTAtion             = (0x01 << 20),
+  TIME_ACCURACY                      = (0x01 << 21),
+  LATITUDE_ACCURACY                  = (0x01 << 22),
+  LONGITUDE_ACCURACY                 = (0x01 << 23),
+  ELEVATION_ACCURACY                 = (0x01 << 24),
+  SPEED_ACCURACY                     = (0x01 << 25),
+  HEADING_ACCURACY                   = (0x01 << 26),
+  LONGITUDINAL_ACCELERATION_ACCURACY = (0x01 << 27),
+  LATTERAL_ACCELERATION_ACCURACY     = (0x01 << 28),
+  VERTICAL_ACCELERATION_ACCURACY     = (0x01 << 29),
+  YAW_RATE_ACCURACY                  = (0x01 << 30)
+};
+
+enum eResultCode {
+  ACCEPTED,                      
+  REJECTED_MAX_LENGTH_EXCCEEDED, 
+  REJECTED_UNSPECIFIED,          
+};
 
 class WsmpPoti: public rclcpp::Node
 {
@@ -45,8 +106,10 @@ public:
   WsmpPoti()
   : Node("WsmpPoti"), seq_(0)
   {
+    // initialize timers, If you want to change current(10Hz) period, change the 100ms 
     timer_ = this->create_wall_timer(100ms, std::bind(&WsmpPoti::on_timer_100ms, this));
 
+    // initialize publisher, subscriber
     sub_fac_poti_ind_ = this->create_subscription<FacPotiIndication>(
       kTOPIC_FAC_POTI_IND, 10, std::bind(&WsmpPoti::fac_poti_ind, this, _1));
 
@@ -57,62 +120,146 @@ public:
 
     sub_fac_wsmp_ind_ = this->create_subscription<FacWsmpIndication>(
       kTOPIC_FAC_WSMP_IND, 10, std::bind(&WsmpPoti::fac_wsmp_ind, this, _1));
-
-    sub_fac_wsmp_status_ind_ = this->create_subscription<FacWsmpStatusIndication>(
-      kTOPIC_FAC_WSMP_STATUS_IND, 10, std::bind(&WsmpPoti::fac_wsmp_status_ind, this, _1));
   }
 
 private:
+  /**
+   * Timer Handler for Fac-WSMP.request
+   * 
+   * This handler sends a request to transmit WSM at 10 Hz to device.
+   */
   void on_timer_100ms()
   {
     auto req = FacWsmpRequest();
 
-    std::vector<uint8_t> data { 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20,
-                                0x56, 0x6F, 0x72, 0x6C, 0x64, 0x21, 0x00 }; // "Hello World!"
+    auto now = std::chrono::high_resolution_clock::now();
+    uint64_t nsec = std::chrono::duration_cast<std::chrono::nanoseconds>
+                    (now.time_since_epoch()).count();
+    req.wx_header.nts = nsec; 
+    req.wx_header.seq = seq_++; 
+
+    req.user_priority               = 5;    // no ciritical event flags, SAE J2945/1
+    req.provider_service_identifier = 0x7F; // 127
+
+    std::string str("This is a sample payload of FacWsmpRequest.");
+    std::vector<uint8_t> data(str.begin(), str.end()); 
     req.data = data;
+
+    req.validity = USER_PRIORITY |
+                   PROVIDER_SERVICE_IDENTIFIER;
 
     pub_fac_wsmp_req_->publish(req);
 
-    RCLCPP_INFO(this->get_logger(), "[WSMP] requsted, seq: %d", int(seq_++));
+    RCLCPP_INFO(this->get_logger(), 
+      "[PUB][FAC-WSMP-REQ] nts: %.9lf, seq: %llu", double(req.wx_header.nts) * 1e-9, 
+                                                   req.wx_header.seq);
+    RCLCPP_INFO(this->get_logger(), 
+      "                    WSM Payload Size: %d",   req.data.size());
+    RCLCPP_INFO(this->get_logger(), 
+      "                    User Priority   : %d",   req.user_priority);
+    RCLCPP_INFO(this->get_logger(),  
+      "                    PSID            : 0x%X", req.provider_service_identifier);
   }
 
+  /**
+   * Callback Function for Fac-POTI.indication
+   * 
+   * This function receives POTI(Positioning and Timing) information from device. 
+   */
   void fac_poti_ind(const FacPotiIndication::SharedPtr ind) const
   {
-    RCLCPP_INFO(this->get_logger(), "[POTI] indication, seq: %d", ind->wx_header.seq);
+    RCLCPP_INFO(this->get_logger(), 
+      "[SUB][FAC-POTI-IND] nts: %.9lf, seq: %llu", double(ind->wx_header.nts) * 1e-9, 
+                                                   ind->wx_header.seq);
+    RCLCPP_INFO(this->get_logger(), 
+      "                    Fix Status %s: %d (0: NO, 1: TIME, 2: 2D FIX, 3: 3D FIX)",
+      ((ind->validity & FIX_STATUS) ? "(valid)  " : "(invalid)"),
+      ((ind->validity & FIX_STATUS) ? ind->fix_status : 0));
+    RCLCPP_INFO(this->get_logger(), 
+      "                    Used SV    %s: %d ",
+      ((ind->validity & NUM_USED_SV) ? "(valid)  " : "(invalid)"),
+      ((ind->validity & NUM_USED_SV) ? ind->num_used_sv: 0));
+    RCLCPP_INFO(this->get_logger(), 
+      "                    Latitude   %s: %11.7lf [deg]",   // degree
+      ((ind->validity & LATITUDE) ? "(valid)  " : "(invalid)"),
+      ((ind->validity & LATITUDE) ? (double)ind->latitude  * 1e-7 : 0.00));
+    RCLCPP_INFO(this->get_logger(), 
+      "                    Longitude  %s: %11.7lf [deg]",   // degree
+      ((ind->validity & LONGITUDE) ? "(valid)  " : "(invalid)"),
+      ((ind->validity & LONGITUDE) ? (double)ind->longitude * 1e-7 : 0.00));
+    RCLCPP_INFO(this->get_logger(), 
+      "                    Elevation  %s: %11.1lf [meter]", // meter 
+      ((ind->validity & ELEVATION_ELLIPSOID) ? "(valid)  " : "(invalid)"),
+      ((ind->validity & ELEVATION_ELLIPSOID) ? (double)ind->elevation_ellipsoid * 0.1 : 0.00));
+    RCLCPP_INFO(this->get_logger(), 
+      "                    Speed      %s: %11.2lf [m/s]",   // m/s 
+      ((ind->validity & SPEED_GROUND) ? "(valid)  " : "(invalid)"),
+      ((ind->validity & SPEED_GROUND) ? (double)ind->speed_ground * 0.02 : 0.00));
   }
 
+  /**
+   * Callback Function for Fac-WSMP.confirm
+   * 
+   * This function receives response for Fac-WSMP.request from device. 
+   */
   void fac_wsmp_cfm(const FacWsmpConfirm::SharedPtr cfm) const
   {
-    RCLCPP_INFO(this->get_logger(), "[WSMP] confirm, seq: %d", cfm->wx_header.seq);
+    RCLCPP_INFO(this->get_logger(), 
+      "[SUB][FAC-WSMP-CFM] nts: %.9lf, seq: %llu", double(cfm->wx_header.nts) * 1e-9, 
+                                                   cfm->wx_header.seq);
+    if (cfm->result_code == ACCEPTED) {
+      RCLCPP_INFO(this->get_logger(), 
+      "                    Result Code: ACCEPTED");
+    }
+    else if (cfm->result_code == REJECTED_MAX_LENGTH_EXCCEEDED) {
+      RCLCPP_INFO(this->get_logger(), 
+      "                    Result Code: REJECTED_MAX_LENGTH_EXCCEEDED");
+    }
+    else if (cfm->result_code == REJECTED_UNSPECIFIED) {
+      RCLCPP_INFO(this->get_logger(), 
+      "                    Result Code: REJECTED_UNSPECIFIED");
+    }
+    else {
+      RCLCPP_INFO(this->get_logger(), 
+      "                    Result Code: UNKNOWN");
+    }
   }
 
+  /**
+   * Callback Function for Fac-WSMP.indication
+   * 
+   * This function receives WSM packet as Fac-WSMP.indication from device.
+   */
   void fac_wsmp_ind(const FacWsmpIndication::SharedPtr ind) const
   {
-    RCLCPP_INFO(this->get_logger(), "[WSMP] indication, seq: %d", ind->wx_header.seq);
+    RCLCPP_INFO(this->get_logger(), 
+      "[SUB][FAC-WSMP-IND] nts: %.9lf, seq: %llu", double(ind->wx_header.nts) * 1e-9, 
+                                                   ind->wx_header.seq);
+    RCLCPP_INFO(this->get_logger(), 
+      "                    WSM payload size: %d", ind->data.size());
   }
 
-  void fac_wsmp_status_ind(const FacWsmpStatusIndication::SharedPtr status) const
-  {
-    RCLCPP_INFO(this->get_logger(), "[WSMP] status indication, seq: %d", status->wx_header.seq);
-  }
-
+  // member variable for WSMP request timer
   rclcpp::TimerBase::SharedPtr timer_;
 
-  rclcpp::Subscription<FacPotiIndication>::SharedPtr       sub_fac_poti_ind_;
-  rclcpp::Subscription<FacPotiStatusIndication>::SharedPtr sub_fac_poti_status_ind_;
+  // member variable for POTI publisher
+  rclcpp::Subscription<FacPotiIndication>::SharedPtr sub_fac_poti_ind_;
 
-  rclcpp::Publisher   <FacWsmpRequest>::SharedPtr          pub_fac_wsmp_req_;
-  rclcpp::Subscription<FacWsmpConfirm>::SharedPtr          sub_fac_wsmp_cfm_;
-  rclcpp::Subscription<FacWsmpIndication>::SharedPtr       sub_fac_wsmp_ind_;
-  rclcpp::Subscription<FacWsmpStatusIndication>::SharedPtr sub_fac_wsmp_status_ind_;
+  // member variable for WSMP publisher, subscriber
+  rclcpp::Publisher   <FacWsmpRequest>::SharedPtr    pub_fac_wsmp_req_;
+  rclcpp::Subscription<FacWsmpIndication>::SharedPtr sub_fac_wsmp_ind_;
+  rclcpp::Subscription<FacWsmpConfirm>::SharedPtr    sub_fac_wsmp_cfm_;
 
   uint64_t seq_;
 };
 
 int main(int argc, char *argv[])
 {
+  // ROS2 environment initialize
   rclcpp::init(argc, argv);
+  // ROS2 execute main thread
   rclcpp::spin(std::make_shared<WsmpPoti>());
+  // ROs2 shutdown main thread 
   rclcpp::shutdown(); 
 
   return EXIT_SUCCESS;
