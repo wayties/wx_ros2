@@ -18,11 +18,11 @@
 
 #include "rclcpp/rclcpp.hpp"
 
-#include "wx_msgs/msg/fac_poti_indication.hpp"
+#include "wx_msgs/msg/facx_poti_indication.hpp"
 
-#include "wx_msgs/msg/fac_wsmp_request.hpp"
-#include "wx_msgs/msg/fac_wsmp_confirm.hpp"
-#include "wx_msgs/msg/fac_wsmp_indication.hpp"
+#include "wx_msgs/msg/facx_wsmp_request.hpp"
+#include "wx_msgs/msg/facx_wsmp_confirm.hpp"
+#include "wx_msgs/msg/facx_wsmp_indication.hpp"
 
 using namespace std::chrono_literals;
 using namespace std::placeholders;
@@ -30,10 +30,10 @@ using namespace std::placeholders;
 using namespace wx_msgs::msg;
 
 // The constant topic name is WX protocol. Do not change.
-const std::string kTOPIC_FAC_POTI_IND = "wx/fac/poti/ind";
-const std::string kTOPIC_FAC_WSMP_REQ = "wx/fac/wsmp/req";
-const std::string kTOPIC_FAC_WSMP_CFM = "wx/fac/wsmp/cfm";
-const std::string kTOPIC_FAC_WSMP_IND = "wx/fac/wsmp/ind";
+const std::string kTOPIC_FACX_POTI_IND = "wx/facx/poti/ind";
+const std::string kTOPIC_FACX_WSMP_REQ = "wx/facx/wsmp/req";
+const std::string kTOPIC_FACX_WSMP_CFM = "wx/facx/wsmp/cfm";
+const std::string kTOPIC_FACX_WSMP_IND = "wx/facx/wsmp/ind";
 
 enum kWsmpValidity {
   SEC_TYPE                    = (0x01 << 0),
@@ -110,14 +110,14 @@ public:
     wsmp_ind_timer_ = this->create_wall_timer(100ms, std::bind(&WsmpPotiEmu::on_wsmp_ind_timer_100ms, this));
 
     // initialize publisher, subscriber
-    pub_fac_poti_ind_ = this->create_publisher<FacPotiIndication>(kTOPIC_FAC_POTI_IND, 10);
+    pub_facx_poti_ind_ = this->create_publisher<FacxPotiIndication>(kTOPIC_FACX_POTI_IND, 10);
 
-    sub_fac_wsmp_req_ = this->create_subscription<FacWsmpRequest>(
-      kTOPIC_FAC_WSMP_REQ, 10, std::bind(&WsmpPotiEmu::fac_wsmp_req, this, _1));
+    sub_facx_wsmp_req_ = this->create_subscription<FacxWsmpRequest>(
+      kTOPIC_FACX_WSMP_REQ, 10, std::bind(&WsmpPotiEmu::facx_wsmp_req, this, _1));
 
-    pub_fac_wsmp_cfm_ = this->create_publisher<FacWsmpConfirm>(kTOPIC_FAC_WSMP_CFM, 10);
+    pub_facx_wsmp_cfm_ = this->create_publisher<FacxWsmpConfirm>(kTOPIC_FACX_WSMP_CFM, 10);
 
-    pub_fac_wsmp_ind_ = this->create_publisher<FacWsmpIndication>(kTOPIC_FAC_WSMP_IND, 10);
+    pub_facx_wsmp_ind_ = this->create_publisher<FacxWsmpIndication>(kTOPIC_FACX_WSMP_IND, 10);
   }
 
 private:
@@ -128,7 +128,7 @@ private:
    */
   void on_poti_ind_timer_100ms()
   {
-    auto poti = FacPotiIndication();
+    auto poti = FacxPotiIndication();
 
     auto now = std::chrono::high_resolution_clock::now();
     uint64_t nsec = std::chrono::duration_cast<std::chrono::nanoseconds>
@@ -150,22 +150,22 @@ private:
                     ELEVATION_ELLIPSOID |
                     SPEED_GROUND;
 
-    pub_fac_poti_ind_->publish(poti);
+    pub_facx_poti_ind_->publish(poti);
 
     RCLCPP_INFO(this->get_logger(), 
-      "[PUB][FAC-POTI-IND] nts: %.9lf, seq: %llu", double(poti.wx_header.nts) * 1e-9, 
+      "[PUB][FACX-POTI-IND] nts: %.9lf, seq: %llu", double(poti.wx_header.nts) * 1e-9, 
                                                    poti.wx_header.seq);
     RCLCPP_INFO(this->get_logger(), 
-      "                    Fix Status: %s (0: NO, 1: TIME, 2: 2D FIX, 3: 3D FIX)", 
+      "                     Fix Status: %s (0: NO, 1: TIME, 2: 2D FIX, 3: 3D FIX)", 
       std::to_string(poti.fix_status).c_str());
     RCLCPP_INFO(this->get_logger(), 
-      "                    Latitude : %11.7lf [deg]",   (double)poti.latitude  * 1e-7);
+      "                     Latitude : %11.7lf [deg]",   (double)poti.latitude  * 1e-7);
     RCLCPP_INFO(this->get_logger(), 
-      "                    Longitude: %11.7lf [deg]",   (double)poti.longitude * 1e-7);
+      "                     Longitude: %11.7lf [deg]",   (double)poti.longitude * 1e-7);
     RCLCPP_INFO(this->get_logger(), 
-      "                    Elevation: %11.1lf [meter]", (double)poti.elevation_ellipsoid * 0.1);
+      "                     Elevation: %11.1lf [meter]", (double)poti.elevation_ellipsoid * 0.1);
     RCLCPP_INFO(this->get_logger(), 
-      "                    Speed    : %11.2lf [m/s]",   (double)poti.speed_ground * 0.02);
+      "                     Speed    : %11.2lf [m/s]",   (double)poti.speed_ground * 0.02);
   }
  
   /**
@@ -175,7 +175,7 @@ private:
    */
   void on_wsmp_ind_timer_100ms()
   {
-    auto wsmp = FacWsmpIndication();
+    auto wsmp = FacxWsmpIndication();
 
     auto now = std::chrono::high_resolution_clock::now();
     uint64_t nsec = std::chrono::duration_cast<std::chrono::nanoseconds>
@@ -187,13 +187,13 @@ private:
     std::vector<uint8_t> data(str.begin(), str.end()); 
     wsmp.data = data;
 
-    pub_fac_wsmp_ind_->publish(wsmp);
+    pub_facx_wsmp_ind_->publish(wsmp);
 
     RCLCPP_INFO(this->get_logger(), 
-      "[PUB][FAC-WSMP-IND] nts: %.9lf, seq: %llu", (double)wsmp.wx_header.nts * 1e-9, 
+      "[PUB][FACX-WSMP-IND] nts: %.9lf, seq: %llu", (double)wsmp.wx_header.nts * 1e-9, 
                                                    wsmp.wx_header.seq);
     RCLCPP_INFO(this->get_logger(), 
-      "                    WSM payload size: %d", wsmp.data.size());
+      "                     WSM payload size: %d", wsmp.data.size());
   }
 
   /**
@@ -201,36 +201,36 @@ private:
    * 
    * This function receives a request for Fac-WSMP.request and sends a response to it as Fac-WSMP.confirm.
    */
-  void fac_wsmp_req(const FacWsmpRequest::SharedPtr req) 
+  void facx_wsmp_req(const FacxWsmpRequest::SharedPtr req) 
   {
     RCLCPP_INFO(this->get_logger(), 
-      "[SUB][FAC-WSMP-REQ] nts: %.9lf, seq: %llu", (double)req->wx_header.nts * 1e-9, 
+      "[SUB][FACX-WSMP-REQ] nts: %.9lf, seq: %llu", (double)req->wx_header.nts * 1e-9, 
                                                    req->wx_header.seq);
     RCLCPP_INFO(this->get_logger(), 
-      "                    WSM payload size: %d", req->data.size());
+      "                     WSM payload size: %d", req->data.size());
     RCLCPP_INFO(this->get_logger(), 
-      "                    User Priority %s: %d",   
+      "                     User Priority %s: %d",   
       ((req->validity & USER_PRIORITY) ? "(valid)  " : "(invalid)"),
       ((req->validity & USER_PRIORITY) ? req->user_priority : 0));
     RCLCPP_INFO(this->get_logger(),  
-      "                    PSID          %s: 0x%X", 
+      "                     PSID          %s: 0x%X", 
       ((req->validity & PROVIDER_SERVICE_IDENTIFIER) ? "(valid)  " : "(invalid)"),
       ((req->validity & PROVIDER_SERVICE_IDENTIFIER) ? req->provider_service_identifier : 0));
 
-    auto cfm = FacWsmpConfirm();
+    auto cfm = FacxWsmpConfirm();
 
     cfm.wx_header.nts = req->wx_header.nts;
     cfm.wx_header.seq = req->wx_header.seq;
 
     cfm.result_code = ACCEPTED;
 
-    pub_fac_wsmp_cfm_->publish(cfm);
+    pub_facx_wsmp_cfm_->publish(cfm);
 
     RCLCPP_INFO(this->get_logger(), 
-      "[PUB][FAC-WSMP-CFM] nts: %.9lf, seq: %llu", double(cfm.wx_header.nts) * 1e-9, 
+      "[PUB][FACX-WSMP-CFM] nts: %.9lf, seq: %llu", double(cfm.wx_header.nts) * 1e-9, 
                                                    cfm.wx_header.seq);
     RCLCPP_INFO(this->get_logger(), 
-      "                    Result Code: ACCEPTED");
+      "                     Result Code: ACCEPTED");
   }
 
   // member variable for POTI indication timer
@@ -240,12 +240,12 @@ private:
   rclcpp::TimerBase::SharedPtr wsmp_ind_timer_;
 
   // member variable for POTI publisher
-  rclcpp::Publisher   <FacPotiIndication>::SharedPtr pub_fac_poti_ind_;
+  rclcpp::Publisher   <FacxPotiIndication>::SharedPtr pub_facx_poti_ind_;
 
   // member variable for WSMP publisher, subscriber
-  rclcpp::Subscription<FacWsmpRequest>::SharedPtr    sub_fac_wsmp_req_;
-  rclcpp::Publisher   <FacWsmpConfirm>::SharedPtr    pub_fac_wsmp_cfm_;
-  rclcpp::Publisher   <FacWsmpIndication>::SharedPtr pub_fac_wsmp_ind_;
+  rclcpp::Subscription<FacxWsmpRequest>::SharedPtr    sub_facx_wsmp_req_;
+  rclcpp::Publisher   <FacxWsmpConfirm>::SharedPtr    pub_facx_wsmp_cfm_;
+  rclcpp::Publisher   <FacxWsmpIndication>::SharedPtr pub_facx_wsmp_ind_;
 
   uint64_t poti_ind_seq_;
   uint64_t wsmp_ind_seq_;
