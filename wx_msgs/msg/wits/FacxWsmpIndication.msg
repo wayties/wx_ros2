@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# FacWsmpIndication.msg, Fac-WSMP.indication 
+# FacxWsmpIndication.msg, FACX-WSMP.indication 
 #
 # This message contains information about WSMP RX indication.
 # There are several enum and bitmask types, a parsing may be necessary as needed.

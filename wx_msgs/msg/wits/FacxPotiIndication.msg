@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# FacPotiIndication.msg, Fac-Poti.indication
+# FacxPotiIndication.msg, FACX-POTI.indication
 #
 # This message contains periodic information about positioning and timing indication.
 # There are several enum and bitmask types, a parsing may be necessary as needed.
@@ -74,8 +74,8 @@ WxHeader wx_header # wx common header
 # VERTICAL_ACCELERATION_ACCURACY     = (0x01 << 29)
 # YAW_RATE_ACCURACY                  = (0x01 << 30)
 
-uint32 fix_status                         # satellite fix status information, enum type
-uint32 fix_type                           # GNSS correction services, bitmask type
+uint8  fix_status                         # satellite fix status information, enum type
+uint16 fix_type                           # GNSS correction services, bitmask type
 
 uint16 num_used_sv                        # number of satellites currently in use for navigation
 uint16 num_visible_sv                     # visible number of satellites 

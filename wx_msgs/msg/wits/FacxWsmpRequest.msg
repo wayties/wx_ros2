@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# FacWsmpRequest.msg, Fac-WSMP.request 
+# FacxWsmpRequest.msg, FACX-WSMP.request 
 #
 # This message contains information about WSMP TX request.
 # There are several enum and bitmask types, a parsing may be necessary as needed.
@@ -57,17 +57,17 @@ WxHeader wx_header # wx common header
 # Default set is 0x7F for Testing.
 # If need to Vehicle to Vehicle Safety and Awareness, change to 0x20
 
-uint32            sec_type                    # unsecured
-uint32            signer_identifier_type      # signed only
+uint8             sec_type                    # unsecured
+uint8             signer_identifier_type      # signed only
 Macaddress48      source_mac_address          # individual address for MAC  
 ChannelIdentifier channel_identifier          # a fully specified channel info
-uint32            time_slot                   # DSRC only, TBD
-uint32            flow_slot                   # LTE-V2X only, TBD
+uint8             time_slot                   # DSRC only, TBD
+uint8             flow_slot                   # LTE-V2X only, TBD
 uint8             data_rate                   # subject to limitations of the PHY (1 ~ 63.5 Mb/s, 500kbit/s increment) 
 int8              transmit_power_level        # TBD
 uint8             user_priority               # default: 5 (5: no critical, 7: critical), range(0..7)
 uint64            expiry_time                 # 0 means never, epoch, microsec
-uint8[]           data                        # payload
 Macaddress48      peer_mac_address            # generally use broadcast address ff:ff:ff:ff:ff:ff 
 uint64            provider_service_identifier # default: 0x7F
 uint16            validity                    # whether the data exists or not, bitmask type 
+uint8[]           data                        # payload

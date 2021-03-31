@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# FacWsmpConfirm.msg, Fac-WSMP.confirm
+# FacxWsmpConfirm.msg, FACX-WSMP.confirm
 #
 # This message contains information about WSMP confirm when WSMP is requested.
 # There are several enum and bitmask types, a parsing may be necessary as needed.

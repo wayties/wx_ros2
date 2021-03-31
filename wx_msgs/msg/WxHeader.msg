@@ -14,8 +14,8 @@
 
 # WxHeader.msg
 
-uint64   nts  # nanoseconds, timestamp
-uint64   seq  # sequence number
-uint16   sid  # source identifier, TBD
-uint16   did  # destination identifier, TBD
-uint8[8] info # for string likely description
+uint64    nts  # nanoseconds, timestamp
+uint64    seq  # sequence number
+uint16    sid  # source identifier, TBD
+uint16    did  # destination identifier, TBD
+uint8[12] info # for string likely description

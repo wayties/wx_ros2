@@ -20,10 +20,10 @@ set(msg_files
   "msg/ieee/ChannelIdentifier.msg"
   "msg/ieee/Macaddress48.msg"
 
-  "msg/wits/FacPotiIndication.msg"
-  "msg/wits/FacWsmpRequest.msg"
-  "msg/wits/FacWsmpConfirm.msg"
-  "msg/wits/FacWsmpIndication.msg"
+  "msg/wits/FacxPotiIndication.msg"
+  "msg/wits/FacxWsmpRequest.msg"
+  "msg/wits/FacxWsmpConfirm.msg"
+  "msg/wits/FacxWsmpIndication.msg"
 )
 rosidl_generate_interfaces(${PROJECT_NAME}
   ${msg_files}
