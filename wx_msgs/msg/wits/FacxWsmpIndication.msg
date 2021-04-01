@@ -31,8 +31,8 @@ WxHeader wx_header # wx commonn header
 # Default set is 0x7F for Testing.
 # If need to Vehicle to Vehicle Safety and Awareness, change to 0x20
 
-uint32       sec_type                    # unsecured only
-uint32       signer_identifier_type      # signed only
+uint8        sec_type                    # unsecured only
+uint8        signer_identifier_type      # signed only
 Macaddress48 peer_mac_address            # generally use broadcast address ff:ff:ff:ff:ff:ff
 uint64       provider_service_identifier # default: 0x7F
 uint8[]      data                        # payload
