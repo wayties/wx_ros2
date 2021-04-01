@@ -23,5 +23,6 @@ WxHeader wx_header # wx common header
 # ACCEPTED                      = 0
 # REJECTED_MAX_LENGTH_EXCCEEDED = 1
 # REJECTED_UNSPECIFIED          = 2
+# MAX                           = 3 
 
-uint32   result_code 
+uint8   result_code 
