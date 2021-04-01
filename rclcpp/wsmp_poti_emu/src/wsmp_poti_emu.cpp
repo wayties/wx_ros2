@@ -39,17 +39,15 @@ enum kWsmpValidity {
   SEC_TYPE                    = (0x01 << 0),
   SIGNER_IDENT_TYPE           = (0x01 << 1),
   SOURCE_MAC_ADDRESS          = (0x01 << 2),
-  RESET_MAC_ADDRESS           = (0x01 << 3),
-  CHANNEL_IDENTIFIER          = (0x01 << 4),
-  TIME_SLOT                   = (0x01 << 5),
+  CHANNEL_IDENTIFIER          = (0x01 << 3),
+  TIME_SLOT                   = (0x01 << 4),
+  FLOW_SLOT                   = (0x01 << 5),
   DATA_RATE                   = (0x01 << 6),
   TRANSMIT_POWER_LEVEL        = (0x01 << 7),
   USER_PRIORITY               = (0x01 << 8),
   EXPIRY_TIME                 = (0x01 << 9),
-  // NOT USED 
-  // NOT USED 
-  PEER_MAC_ADDRESS            = (0x01 << 12),
-  PROVIDER_SERVICE_IDENTIFIER = (0x01 << 13),
+  PEER_MAC_ADDRESS            = (0x01 << 10),
+  PROVIDER_SERVICE_IDENTIFIER = (0x01 << 11),
 };
 
 enum eFixStatus {
@@ -90,7 +88,7 @@ enum kPotiIndValiditiy {
   LONGITUDINAL_ACCELERATION_ACCURACY = (0x01 << 27),
   LATTERAL_ACCELERATION_ACCURACY     = (0x01 << 28),
   VERTICAL_ACCELERATION_ACCURACY     = (0x01 << 29),
-  YAW_RATE_ACCURACY                  = (0x01 << 30)
+  YAW_RATE_ACCURACY                  = (0x01 << 30),
 };
 
 enum eResultCode {
