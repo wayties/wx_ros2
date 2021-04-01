@@ -14,10 +14,10 @@ For more information about ROS 2 interfaces, see [index.ros2.org](https://index.
 * [Macaddress48](msg/ieee/Macaddress48.msg): Type message representing MAC address following EUI-48
 
 ### - WITS
-* [FacPotiIndication](msg/wits/FacPotiIndication.msg): Periodic indication message having information for Global Navigation Satellite System and Inertial measurement unit 
-* [FacWsmpRequest](msg/wits/FacWsmpRequest.msg): Request message used to send a WSM packet  
-* [FacWsmpConfirm](msg/wits/FacWsmpConfirm.msg): Confirm message received in response to whether FacWsmpRequest has been properly transmitted or not 
-* [FacWsmpIndication](msg/wits/FacWsmpIndication.msg): Indication message for a received WSM packet 
+* [FacxPotiIndication](msg/wits/FacxPotiIndication.msg): Periodic indication message having information for Global Navigation Satellite System and Inertial measurement unit 
+* [FacxWsmpRequest](msg/wits/FacxWsmpRequest.msg): Request message used to send a WSM packet  
+* [FacxWsmpConfirm](msg/wits/FacxWsmpConfirm.msg): Confirm message received in response to whether FacWsmpRequest has been properly transmitted or not 
+* [FacxWsmpIndication](msg/wits/FacxWsmpIndication.msg): Indication message for a received WSM packet 
 
 ## Services (.srv)
 * TBD 
