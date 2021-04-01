@@ -2,6 +2,12 @@
 Changelog for rclcpp package of wx_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.5.0 (2021-04-01)
+------------------
+* Fix extension message for WSMP (FACX-)
+* Fix extension message for POTI (FACX-)
+
+
 0.4.0 (2021-03-29)
 ------------------
 * Update to extension message for WSMP (FACX-)
