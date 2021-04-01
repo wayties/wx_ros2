@@ -24,6 +24,7 @@ WxHeader wx_header # wx common header
 # TIME = 1
 # 2D   = 2
 # 3D   = 3
+# MAX  = 4
 
 # fix_type, type: bitmask          
 # SINGLE_FREQUENCY   = (0x01 << 0)
@@ -40,6 +41,7 @@ WxHeader wx_header # wx common header
 # DEAD_RECKONING     = (0x01 << 11)
 # MANUAL             = (0x01 << 12)
 # SIMULATOR_MODE     = (0x01 << 13)
+# MAX                = (0x01 << 14)
 
 # validity, type: bitmask
 # FIX_STATUS                         = (0x01 << 0)                 
@@ -73,6 +75,7 @@ WxHeader wx_header # wx common header
 # LATTERAL_ACCELERATION_ACCURACY     = (0x01 << 28)
 # VERTICAL_ACCELERATION_ACCURACY     = (0x01 << 29)
 # YAW_RATE_ACCURACY                  = (0x01 << 30)
+# MAX                                = (0x01 << 31)
 
 uint8  fix_status                         # satellite fix status information, enum type
 uint16 fix_type                           # GNSS correction services, bitmask type
